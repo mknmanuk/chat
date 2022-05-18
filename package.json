@@ -4,7 +4,7 @@
     "description": "",
     "main": "chat.js",
     "scripts": {
-        "dev": "nodemon index.js",
+        "dev": "nodemon app.js",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "keywords": [],
@@ -12,6 +12,10 @@
     "license": "ISC",
     "dependencies": {
         "express": "^4.18.1",
+        "pg": "^8.7.3",
         "socket.io": "^4.5.0"
+    },
+    "devDependencies": {
+        "nodemon": "^2.0.16"
     }
 }
