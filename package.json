@@ -4,14 +4,17 @@
     "description": "",
     "main": "chat.js",
     "scripts": {
-        "dev": "nodemon app.js",
+        "dev": "nodemon --require dotenv/config app.js",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "dependencies": {
+        "dotenv": "^16.0.1",
         "express": "^4.18.1",
+        "express-session": "^1.17.3",
+        "md5": "^2.3.0",
         "pg": "^8.7.3",
         "socket.io": "^4.5.0"
     },

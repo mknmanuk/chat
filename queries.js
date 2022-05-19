@@ -1,4 +1,7 @@
 const Pool = require("pg").Pool;
+const md5 = require("md5");
+const url = require("url");
+
 const pool = new Pool({
     user: "postgres",
     host: "localhost",
@@ -6,6 +9,8 @@ const pool = new Pool({
     password: "qwe456",
     port: 5432,
 });
+
+let user = [];
 
 const getUsers = (request, response) => {
     pool.query("SELECT * FROM users ORDER BY id ASC", (error, results) => {
@@ -27,19 +32,66 @@ const getUserById = (request, response) => {
     });
 };
 
-const createUser = (request, response) => {
-    const { name, email } = request.body;
+const createUser = async (request, response) => {
+    // const { username, email, password } = request.body;
+    const username = request.body.username;
+    const email = request.body.email;
+    const password = await md5(request.body.password);
 
-    pool.query(
-        "INSERT INTO users (name, email) VALUES ($1, $2)",
-        [name, email],
-        (error, results) => {
-            if (error) {
-                throw error;
+    // user.push({
+    //     username,
+    //     email,
+    //     password: md5_password,
+    // });
+    let user_exists = false;
+    if (username !== "" && email !== "") {
+        pool.query(
+            "SELECT * FROM users WHERE username = $1 OR email = $2",
+            [username, email],
+            (error, results) => {
+                if (error) {
+                    throw error;
+                }
+                console.log(results.rows);
+                user_exists = results.rows == [] ? false : true;
+                if (Object.keys(results.rows).length > 0) {
+                    console.log("User exists!");
+                    response.redirect(
+                        url.format({
+                            pathname: "/registration",
+                            query: "User exists!",
+                        })
+                    );
+                } else {
+                    if (request.body.password == request.body.cpassword) {
+                        pool.query(
+                            "INSERT INTO users (username, email, password) VALUES ($1, $2, $3)",
+                            [username, email, password],
+                            (error, results) => {
+                                if (error) {
+                                    throw error;
+                                }
+                                console.log("Registered!");
+                                response.redirect(
+                                    url.format({
+                                        pathname: "/registration",
+                                        query: "Registered!",
+                                    })
+                                );
+                            }
+                        );
+                    } else {
+                        response.redirect(
+                            url.format({
+                                pathname: "/registration",
+                                query: "Password and confirmation password does not match!",
+                            })
+                        );
+                    }
+                }
             }
-            response.status(201).send(`User added with ID: ${result.insertId}`);
-        }
-    );
+        );
+    }
 };
 
 const updateUser = (request, response) => {
@@ -69,10 +121,53 @@ const deleteUser = (request, response) => {
     });
 };
 
+const login = (request, response) => {
+    console.log('aaaa')
+    // const { username, email, password } = request.body;
+
+    const username = request.body.username;
+    const password =  md5(request.body.password);
+
+    // user.push({
+    //     username,
+    //     email,
+    //     password: md5_password,
+    // });
+    if (username !== "" && password !== "") {
+        pool.query(
+            "SELECT * FROM users WHERE username = $1 AND password = $2",
+            [username, password],
+            (error, results) => {
+                if (error) {
+                    throw error;
+                }
+                console.log(results.rows);
+                if (Object.keys(results.rows).length > 0) {
+                    console.log("Success login!");
+                    response.redirect(
+                        url.format({
+                            pathname: "/",
+                            query: "Success login!",
+                        })
+                    );
+                } else {
+                    response.redirect(
+                        url.format({
+                            pathname: "/registration",
+                            query: "Wrong username or password!",
+                        })
+                    );
+                }
+            }
+        );
+    }
+};
+
 module.exports = {
     getUsers,
     getUserById,
     createUser,
     updateUser,
     deleteUser,
+    login,
 };
