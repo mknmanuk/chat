@@ -24,15 +24,27 @@
                         <a class="navbar-brand" href="/">Chat</a>
                     </div>
                     <ul class="nav navbar-nav navbar-right">
-                        <li>
-                            <a
-                                href="/login"
-                                class="btn btn-success navbar-btn pull-right"
-                            >
-                                Sign in
-                            </a>
-                        </li>
+                        <li></li>
                     </ul>
+                    <% if(typeof username !== 'undefined'){ %>
+                    <a
+                        href="/logout"
+                        class="btn btn-danger navbar-btn pull-right"
+                    >
+                        <div class="asd">Sign out</div>
+                    </a>
+                    <div class="user_div">
+                        <%= (typeof username !== 'undefined') ? username : '' %>
+                        <span class="glyphicon">&#xe008;</span>
+                    </div>
+                    <% }else{ %>
+                    <a
+                        href="/login"
+                        class="btn btn-success navbar-btn pull-right"
+                    >
+                        Sign in
+                    </a>
+                    <% } %>
                 </div>
             </div>
         </nav>
@@ -48,11 +60,27 @@
                                         <strong> Chat </strong>
                                     </h4>
                                     <div class="col-md-4">
+                                        <select
+                                            id="users_select"
+                                            class="form-control"
+                                        >
+                                            <option value="">-select user-</option>
+                                        </select>
                                         <input
-                                            type="text"
+                                            type="hidden"
                                             class="col-xs-4 form-control"
                                             name="input_name"
                                             placeholder="Enter your name"
+                                            value="<%= (typeof username !== 'undefined') ? username : '' %>"
+                                            disabled
+                                        />
+                                        <input
+                                            type="hidden"
+                                            class="col-xs-4 form-control"
+                                            name="input_id"
+                                            placeholder="Enter your name"
+                                            value="<%= (typeof user_id !== 'undefined') ? user_id : '' %>"
+                                            disabled
                                         />
                                     </div>
                                 </div>
@@ -72,6 +100,7 @@
                                         class="publisher-input"
                                         type="text"
                                         placeholder="Write something"
+                                        disabled
                                     />
                                     <a
                                         class="publisher-btn"
@@ -90,6 +119,7 @@
                                         class="btn btn-xm btn-primary"
                                         href="#"
                                         data-abc="true"
+                                        disabled
                                     >
                                         Send
                                     </button>
@@ -101,6 +131,35 @@
             </div>
         </div>
 
+        <script>
+            var sender_id = '';
+            var receiver_id = '';
+            fetch("/users")
+                .then((resp) => resp.json())
+                .then((resp) => {
+                    // console.log(resp);
+                    for (i = 0; i < resp.length; i++) {
+                        $("#users_select").append(new Option(resp[i].username, resp[i].id));
+                    }
+                });
+
+            $("#users_select").on('change',function(){
+                let select_val = $(this).val();
+                if(select_val!=''){
+                    $('#input_send').prop('disabled', false);
+                    $('#input_message').prop('disabled', false);
+
+                    sender_id = $('input[name="input_id"]').val();
+                    receiver_id = select_val;
+                    // console.log('sender_id->'+sender_id)
+                    // console.log('receiver_id->'+receiver_id)
+                }
+                else{
+                    $('#input_send').prop('disabled', true);
+                    $('#input_message').prop('disabled', true);
+                }
+            })
+        </script>
         <script type="" src="/public/chat.js"></script>
     </body>
 </html>

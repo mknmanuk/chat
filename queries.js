@@ -1,4 +1,6 @@
 const Pool = require("pg").Pool;
+// const session = require("express-session");
+const { redirect } = require("express/lib/response");
 const md5 = require("md5");
 const url = require("url");
 
@@ -52,16 +54,9 @@ const createUser = async (request, response) => {
                 if (error) {
                     throw error;
                 }
-                console.log(results.rows);
                 user_exists = results.rows == [] ? false : true;
                 if (Object.keys(results.rows).length > 0) {
-                    console.log("User exists!");
-                    response.redirect(
-                        url.format({
-                            pathname: "/registration",
-                            query: "User exists!",
-                        })
-                    );
+                    response.render("registration", { msg: "User exists!" });
                 } else {
                     if (request.body.password == request.body.cpassword) {
                         pool.query(
@@ -71,22 +66,15 @@ const createUser = async (request, response) => {
                                 if (error) {
                                     throw error;
                                 }
-                                console.log("Registered!");
-                                response.redirect(
-                                    url.format({
-                                        pathname: "/registration",
-                                        query: "Registered!",
-                                    })
-                                );
+                                response.render("registration", {
+                                    msg: "Registered!",
+                                });
                             }
                         );
                     } else {
-                        response.redirect(
-                            url.format({
-                                pathname: "/registration",
-                                query: "Password and confirmation password does not match!",
-                            })
-                        );
+                        response.render("registration", {
+                            msg: "Password and confirmation password does not match!",
+                        });
                     }
                 }
             }
@@ -121,18 +109,12 @@ const deleteUser = (request, response) => {
     });
 };
 
-const login = (request, response) => {
-    console.log('aaaa')
+const login = (req, res) => {
     // const { username, email, password } = request.body;
 
-    const username = request.body.username;
-    const password =  md5(request.body.password);
+    const username = req.body.username;
+    const password = md5(req.body.password);
 
-    // user.push({
-    //     username,
-    //     email,
-    //     password: md5_password,
-    // });
     if (username !== "" && password !== "") {
         pool.query(
             "SELECT * FROM users WHERE username = $1 AND password = $2",
@@ -141,23 +123,45 @@ const login = (request, response) => {
                 if (error) {
                     throw error;
                 }
-                console.log(results.rows);
                 if (Object.keys(results.rows).length > 0) {
                     console.log("Success login!");
-                    response.redirect(
-                        url.format({
-                            pathname: "/",
-                            query: "Success login!",
-                        })
-                    );
+                    let user_id = results.rows[0].id;
+                    console.log(user_id);
+                    // session.user = username;
+                    res.render("index", { username, user_id });
                 } else {
-                    response.redirect(
-                        url.format({
-                            pathname: "/registration",
-                            query: "Wrong username or password!",
-                        })
-                    );
+                    res.render("login", {
+                        msg: "Wrong username or password!",
+                    });
                 }
+            }
+        );
+    }
+};
+
+const save_data = (req, res) => {
+    const data = [];
+    const conversation_id = req.body.conversation_id;
+    const sender_id = req.body.sender_id;
+    const receiver_id = req.body.receiver_id;
+    const text = req.body.text;
+    data.push({
+        conversation_id,
+        sender_id,
+        receiver_id,
+        text,
+    });
+    // console.log(data);
+
+    if (sender_id !== "" && receiver_id !== "") {
+        pool.query(
+            "INSERT INTO messages (conversation_id, sender_id, receiver_id, text) VALUES ($1, $2, $3, $4)",
+            [conversation_id, sender_id, receiver_id, text],
+            (error, results) => {
+                if (error) {
+                    throw error;
+                }
+                console.log("success");
             }
         );
     }
@@ -170,4 +174,5 @@ module.exports = {
     updateUser,
     deleteUser,
     login,
+    save_data,
 };

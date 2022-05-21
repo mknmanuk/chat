@@ -341,3 +341,8 @@ textarea {
     padding: 5px;
     color: aliceblue;
 }
+.user_div {
+    color: azure;
+    float: right;
+    padding: 15px;
+}
