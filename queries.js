@@ -151,7 +151,6 @@ const save_data = (req, res) => {
         receiver_id,
         text,
     });
-    // console.log(data);
 
     if (sender_id !== "" && receiver_id !== "") {
         pool.query(
@@ -169,7 +168,6 @@ const save_data = (req, res) => {
 
 const load_data = (request, response) => {
     const id = request.params.id;
-    console.log(id);
     pool.query(
         "SELECT messages.text,to_char(messages.sent_at, 'YYYY-MM-DD HH:MI:SS') as sent_at,users.username as \"sender\" FROM messages left join users on messages.sender_id=users.id WHERE conversation_id = $1",
         [id],

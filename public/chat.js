@@ -50,33 +50,7 @@ $(function () {
         console.log("receiver_id->" + receiver_id);
 
         if (my_id == receiver_id || my_id == sender_id) {
-            if (data.name != input_name) {
-                send_text = "send_text_reverse";
-                text_time = "text_time_reverse";
-            } else {
-                data.name = "You";
-            }
-            let dt = new Date();
-            let time =
-                dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
-
-            chat_content.append(
-                "<div class='" +
-                    send_text +
-                    "'><b class='font-weight-bold'>" +
-                    data.name +
-                    ": </b>" +
-                    data.text +
-                    " </div><div class='clearfix'><div class='" +
-                    text_time +
-                    "'> " +
-                    time +
-                    "</div></div>"
-            );
-            chat_content.animate(
-                { scrollTop: chat_content.prop("scrollHeight") },
-                1000
-            );
+            add_to_chat(data.name, data.text);
         }
     });
 
