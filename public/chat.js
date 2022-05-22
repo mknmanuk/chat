@@ -1,7 +1,7 @@
+let chat_content = $("#chat_content");
 $(function () {
     var socket = io.connect();
 
-    let chat_content = $("#chat_content");
     let input_name = "";
     let input_message = $("#input_message");
     let input_send = $("#input_send");
@@ -89,3 +89,41 @@ $(function () {
         }
     });
 });
+
+function add_to_chat(sender, text, sent_at = "") {
+    let send_text = "send_text";
+    let text_time = "text_time";
+    input_name = $("input[name='input_name']").val();
+
+    if (sender != input_name) {
+        send_text = "send_text_reverse";
+        text_time = "text_time_reverse";
+    } else {
+        sender = "You";
+    }
+    let dt = new Date();
+    let time = "";
+    if (sent_at == "") {
+        time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+    } else {
+        time = sent_at;
+    }
+
+    chat_content.append(
+        "<div class='" +
+            send_text +
+            "'><b class='font-weight-bold'>" +
+            sender +
+            ": </b>" +
+            text +
+            " </div><div class='clearfix'><div class='" +
+            text_time +
+            "'> " +
+            time +
+            "</div></div>"
+    );
+    chat_content.animate(
+        { scrollTop: chat_content.prop("scrollHeight") },
+        1000
+    );
+}

@@ -64,7 +64,9 @@
                                             id="users_select"
                                             class="form-control"
                                         >
-                                            <option value="">-select user-</option>
+                                            <option value="">
+                                                -select user-
+                                            </option>
                                         </select>
                                         <input
                                             type="hidden"
@@ -132,33 +134,47 @@
         </div>
 
         <script>
-            var sender_id = '';
-            var receiver_id = '';
+            var sender_id = "";
+            var receiver_id = "";
             fetch("/users")
                 .then((resp) => resp.json())
                 .then((resp) => {
                     // console.log(resp);
                     for (i = 0; i < resp.length; i++) {
-                        $("#users_select").append(new Option(resp[i].username, resp[i].id));
+                        $("#users_select").append(
+                            new Option(resp[i].username, resp[i].id)
+                        );
                     }
                 });
 
-            $("#users_select").on('change',function(){
+            $("#users_select").on("change", function () {
                 let select_val = $(this).val();
-                if(select_val!=''){
-                    $('#input_send').prop('disabled', false);
-                    $('#input_message').prop('disabled', false);
+                if (select_val != "") {
+                    $("#input_send").prop("disabled", false);
+                    $("#input_message").prop("disabled", false);
 
                     sender_id = $('input[name="input_id"]').val();
                     receiver_id = select_val;
                     // console.log('sender_id->'+sender_id)
                     // console.log('receiver_id->'+receiver_id)
+
+                    let conversation_id =
+                        sender_id < receiver_id
+                            ? sender_id + "-" + receiver_id
+                            : receiver_id + "-" + sender_id;
+                    fetch("/load_data/" + conversation_id)
+                        .then((resp) => resp.json())
+                        .then((resp) => {
+                            $("#chat_content").html("");
+                            for (i = 0; i < resp.length; i++) {
+                                add_to_chat(resp[i].sender, resp[i].text, resp[i].sent_at);
+                            }
+                        });
+                } else {
+                    $("#input_send").prop("disabled", true);
+                    $("#input_message").prop("disabled", true);
                 }
-                else{
-                    $('#input_send').prop('disabled', true);
-                    $('#input_message').prop('disabled', true);
-                }
-            })
+            });
         </script>
         <script type="" src="/public/chat.js"></script>
     </body>

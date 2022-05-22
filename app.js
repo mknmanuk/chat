@@ -39,8 +39,8 @@ function check_login() {
 }
 
 app.get("/", function (req, res) {
-    let users = res.get("/users");
-    console.info(users);
+    // let users = res.get("/users");
+    // console.info(session.user);
     if (check_login()) {
         res.render("index", { username: session.user });
     } else {
@@ -76,6 +76,7 @@ app.post("/registration", db.createUser);
 app.put("/users/:id", db.updateUser);
 app.delete("/users/:id", db.deleteUser);
 app.post("/save_data", db.save_data);
+app.get("/load_data/:id", db.load_data);
 
 users = [];
 connections = [];
