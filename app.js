@@ -6,9 +6,11 @@ const io = require("socket.io")(server);
 const port = process.env.SERVER_PORT;
 const bodyParser = require("body-parser");
 const session = require("express-session");
+const MemoryStore = session.MemoryStore;
 const url = require("url");
 const db = require("./queries.js");
 
+// app.use(cookieParser());
 app.set("view engine", "ejs");
 
 server.listen(port, function () {
@@ -18,9 +20,10 @@ server.listen(port, function () {
 app.use(
     session({
         secret: process.env.SESSION_SECRET,
-        // resave: false,
+        name: "app.sid",
+        resave: true,
+        store: new MemoryStore(),
         saveUninitialized: false,
-        cookie: { maxAge: 60000 },
     })
 );
 
@@ -33,16 +36,18 @@ app.use(
     })
 );
 
+var user;
 function check_login() {
     // return request.session.auth == undefined ? false : true;
-    return session.user == undefined ? false : true;
+    return user == undefined ? false : true;
 }
 
 app.get("/", function (req, res) {
     // let users = res.get("/users");
-    // console.info(session.user);
+    user = req.session.user;
+    // console.info(user);
     if (check_login()) {
-        res.render("index", { username: session.user });
+        res.render("index", { username: user });
     } else {
         res.render("login");
     }

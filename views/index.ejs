@@ -167,7 +167,11 @@
                         .then((resp) => {
                             $("#chat_content").html("");
                             for (i = 0; i < resp.length; i++) {
-                                add_to_chat(resp[i].sender, resp[i].text, resp[i].sent_at);
+                                add_to_chat(
+                                    resp[i].sender,
+                                    resp[i].text,
+                                    resp[i].sent_at
+                                );
                             }
                         });
                 } else {

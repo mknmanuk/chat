@@ -126,8 +126,8 @@ const login = (req, res) => {
                 if (Object.keys(results.rows).length > 0) {
                     console.log("Success login!");
                     let user_id = results.rows[0].id;
-                    console.log(user_id);
-                    // session.user = username;
+                    req.session.user = username;
+                    // console.log(req.session);
                     res.render("index", { username, user_id });
                 } else {
                     res.render("login", {
